@@ -1,5 +1,5 @@
 # Password Manager
-
+![image](https://github.com/anandvelango/PasswordManager/assets/50573902/b3e6f9b4-7c71-45b4-9a82-d344b742151a)
 Simple CLI password manager that uses Python 3.9+ and SQL.
 
 ## DISCLAIMER
