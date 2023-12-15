@@ -24,6 +24,4 @@ I am not responsible for your lost or stolen passwords.
 4. Download postgresql from the official site: https://www.postgresql.org/download/
 
 ## Usage
-Make sure to add your password in order to connect to the database in line 11.
-
 `python3 main.py`

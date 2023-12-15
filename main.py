@@ -1,18 +1,19 @@
 import psycopg2
 import uuid
+import getpass
 import os
 from tabulate import tabulate
 from cryptography.fernet import Fernet
 
 # connect to postgres db
-conn = psycopg2.connect(host="localhost",
-                        dbname="postgres",
-                        user="postgres",
-                        password="<your password>",
-                        port=5432)
+def connect_db(db_password):
+    conn = psycopg2.connect(host="localhost",
+                            dbname="postgres",
+                            user="postgres",
+                            password=db_password,
+                            port=5432) 
 
-# cursor for executing commands and queries
-cur = conn.cursor()
+    return conn
 
 # load key for encrypting/decrypting passwords (symmetric encryption)
 def load_key():
@@ -140,37 +141,54 @@ def main(banner):
     
     conn.commit()
     
-    while True:
-        choice = input("[>>>] ").lower().strip()
-        if choice == "1":
-            add_password()
-        elif choice == "2":
-            view_password()
-        elif choice == "3":
-            delete_password()
-        elif choice == "4":
-            update_password()
-        elif choice == "h" or choice == "help":
-            print(banner)
-        elif choice == "q" or choice == "exit":
-            print("[!] Exited the program")
-            cur.close()
-            conn.close()
-            exit()
-        else:
-            print("[!] Not a valid input")
+    try:
+        while True:
+            choice = input("[>>>] ").lower().strip()
+            if choice == "1":
+                add_password()
+            elif choice == "2":
+                view_password()
+            elif choice == "3":
+                delete_password()
+            elif choice == "4":
+                update_password()
+            elif choice == "h" or choice == "help":
+                print(banner)
+            elif choice == "clear" or choice == "cls":
+                os.system("cls" if os.name == "nt" else "clear")
+            elif choice == "q" or choice == "exit":
+                print("[!] Exited the program")
+                cur.close()
+                conn.close()
+                exit()
+            else:
+                print("[!] Not a valid input")
+    except KeyboardInterrupt:
+        print("\n[-] Exited the program with keyboard")
+        exit()
             
-if __name__ == "__main__":
+if __name__ == "__main__":    
+    # authenticate user and password
+    db_password = getpass.getpass("[+] Postgres DB password: ")
+    try:
+        conn = connect_db(db_password)
+        cur = conn.cursor()
+        print("[+] User authenticated!")
+    except psycopg2.OperationalError as e:
+        print("[!] Failed to connect to database: Incorrect password")
+        exit()
+    
     key = load_key()
     fernet = Fernet(key)
     
     headers = ["id", "username", "account"]
     table = [] 
     
+    # banner
     banner = ("""
     
-            :+++++++:        
-           #=       =*       Password Manager
+            :+++++++:        Password Manager
+           #=       =*       Coded by @anandvelango
           *=         ++      ================
           %.         :#      
         -=@++++++++++*%=-    [1] Add password
